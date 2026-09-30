@@ -1,0 +1,21 @@
+.board {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  height: 100%;
+  overflow-x: auto;
+  padding: 16px;
+}
+
+.addColumn {
+  flex: 0 0 280px;
+  justify-content: flex-start;
+  background: color-mix(in srgb, var(--surface-muted) 60%, transparent);
+  border: 1px dashed var(--border);
+  padding: 10px 12px;
+}
+
+.loading {
+  padding: 16px;
+  color: var(--text-muted);
+}

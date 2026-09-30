@@ -1,0 +1,50 @@
+.timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--accent);
+  padding: 0;
+}
+
+.toggle:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.total {
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+
+.running {
+  color: var(--running);
+}
+
+.running .toggle {
+  background: var(--running);
+  border-color: var(--running);
+  color: var(--surface);
+}
+
+.large .toggle {
+  width: 32px;
+  height: 32px;
+}
+
+.large .total {
+  font-size: 18px;
+  font-weight: 600;
+}

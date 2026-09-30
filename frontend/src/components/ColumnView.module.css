@@ -1,0 +1,61 @@
+.column {
+  flex: 0 0 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 100%;
+  background: var(--surface-muted);
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 2px;
+}
+
+.name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.count {
+  color: var(--text-muted);
+  font-size: 12px;
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 0 8px;
+}
+
+.actions {
+  margin-left: auto;
+  display: flex;
+  opacity: 0.3;
+  transition: opacity 0.15s;
+}
+
+.column:hover .actions,
+.actions:focus-within {
+  opacity: 1;
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 40px;
+  overflow-y: auto;
+  border-radius: var(--radius);
+  padding: 2px;
+  margin: -2px;
+}
+
+.over {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
