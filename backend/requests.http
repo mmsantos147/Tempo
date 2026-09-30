@@ -1,0 +1,88 @@
+@api = http://localhost:8080
+
+###
+GET {{api}}/boards
+
+###
+GET {{api}}/boards/1
+
+###
+POST {{api}}/boards
+Content-Type: application/json
+
+{ "name": "Project X" }
+
+###
+PUT {{api}}/boards/1
+Content-Type: application/json
+
+{ "name": "My renamed board" }
+
+###
+DELETE {{api}}/boards/2
+
+###
+POST {{api}}/boards/1/columns
+Content-Type: application/json
+
+{ "name": "Review" }
+
+###
+PUT {{api}}/columns/1
+Content-Type: application/json
+
+{ "name": "Backlog" }
+
+###
+POST {{api}}/columns/3/move
+Content-Type: application/json
+
+{ "position": 0 }
+
+###
+DELETE {{api}}/columns/4
+
+###
+POST {{api}}/columns/1/cards
+Content-Type: application/json
+
+{ "title": "Set up CI", "description": "GitHub Actions running the tests", "estimatedMinutes": 90 }
+
+###
+GET {{api}}/cards/1
+
+###
+PUT {{api}}/cards/1
+Content-Type: application/json
+
+{ "title": "Set up CI", "description": null, "estimatedMinutes": 60 }
+
+###
+POST {{api}}/cards/1/move
+Content-Type: application/json
+
+{ "columnId": 2, "position": 0 }
+
+###
+POST {{api}}/cards/1/complete
+
+###
+POST {{api}}/cards/1/reopen
+
+###
+DELETE {{api}}/cards/1
+
+###
+POST {{api}}/cards/1/time-entries/start
+Content-Type: application/json
+
+{ "description": "Writing the workflow" }
+
+###
+POST {{api}}/cards/1/time-entries/start
+
+###
+POST {{api}}/time-entries/1/stop
+
+###
+GET {{api}}/cards/1/time

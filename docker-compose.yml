@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:17
+    container_name: tempo-db
+    environment:
+      POSTGRES_DB: tempo
+      POSTGRES_USER: tempo
+      POSTGRES_PASSWORD: tempo
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

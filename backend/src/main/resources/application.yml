@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: tempo
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/tempo}
+    username: ${DB_USER:tempo}
+    password: ${DB_PASSWORD:tempo}
+
+  web:
+    locale: en
+    locale-resolver: fixed
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+tempo:
+  default-user-id: 1
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
