@@ -2,7 +2,7 @@ package br.com.tempo.error;
 
 public class ResourceNotFoundException extends RuntimeException {
 
-    public ResourceNotFoundException(String resource, Long id) {
+    public ResourceNotFoundException(String resource, Object id) {
         super(resource + " " + id + " not found");
     }
 }

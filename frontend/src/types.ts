@@ -1,3 +1,9 @@
+export interface User {
+  id: number
+  name: string
+  email: string
+}
+
 export interface BoardSummary {
   id: number
   name: string
@@ -45,6 +51,7 @@ export interface CardInput {
 export interface TimeEntry {
   id: number
   cardId: number
+  cardTitle: string
   startedAt: string
   endedAt: string | null
   description: string | null
@@ -59,4 +66,39 @@ export interface CardTime {
   cardId: number
   totalSeconds: number
   running: RunningTimeEntry | null
+}
+
+export interface TimeEntryInput {
+  date: string
+  startTime: string
+  endTime: string
+  description: string | null
+}
+
+export interface LinkedCard {
+  id: number
+  title: string
+  boardId: number
+  completedAt: string | null
+}
+
+export interface JournalItem {
+  id: number
+  text: string
+  position: number
+  card: LinkedCard | null
+}
+
+export interface JournalTexts {
+  whatIDid: string
+  howIFelt: string
+}
+
+export interface JournalEntry {
+  date: string
+  whatIDid: string | null
+  howIFelt: string | null
+  createdAt: string
+  updatedAt: string
+  items: JournalItem[]
 }

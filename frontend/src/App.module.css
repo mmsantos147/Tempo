@@ -3,13 +3,3 @@
   flex-direction: column;
   height: 100vh;
 }
-
-.main {
-  flex: 1;
-  min-height: 0;
-}
-
-.message {
-  padding: 16px;
-  color: var(--text-muted);
-}

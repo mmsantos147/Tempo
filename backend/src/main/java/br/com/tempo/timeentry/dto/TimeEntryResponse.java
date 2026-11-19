@@ -7,6 +7,7 @@ import java.time.Instant;
 public record TimeEntryResponse(
         Long id,
         Long cardId,
+        String cardTitle,
         Instant startedAt,
         Instant endedAt,
         String description
@@ -16,6 +17,7 @@ public record TimeEntryResponse(
         return new TimeEntryResponse(
                 timeEntry.getId(),
                 timeEntry.getCard().getId(),
+                timeEntry.getCard().getTitle(),
                 timeEntry.getStartedAt(),
                 timeEntry.getEndedAt(),
                 timeEntry.getDescription());

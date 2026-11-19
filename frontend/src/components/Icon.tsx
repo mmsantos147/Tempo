@@ -9,6 +9,8 @@ const paths = {
   check: 'M5 12l5 5L20 7',
   close: 'M6 6l12 12M18 6L6 18',
   clock: 'M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z',
+  grip: 'M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01',
+  focus: 'M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5',
 }
 
 export type IconName = keyof typeof paths

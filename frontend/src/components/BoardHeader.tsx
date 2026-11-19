@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { BoardSummary } from '../types'
+import { AppHeader } from './AppHeader'
 import { Button } from './Button'
 import { ConfirmDialog } from './ConfirmDialog'
 import { Icon } from './Icon'
@@ -22,11 +23,7 @@ export function BoardHeader({ boards, selectedId, onSelect, onCreate, onRename, 
   const selected = boards.find((board) => board.id === selectedId)
 
   return (
-    <header className={styles.header}>
-      <div className={styles.brand}>
-        <Icon name="clock" size={20} />
-        Tempo
-      </div>
+    <AppHeader>
 
       {boards.length > 0 && (
         <select
@@ -88,6 +85,6 @@ export function BoardHeader({ boards, selectedId, onSelect, onCreate, onRename, 
           onClose={() => setDialog(null)}
         />
       )}
-    </header>
+    </AppHeader>
   )
 }

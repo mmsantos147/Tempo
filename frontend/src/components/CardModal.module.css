@@ -8,6 +8,12 @@
   padding: 10px 12px;
 }
 
+.timeActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .timeLabel {
   color: var(--text-muted);
   font-weight: 500;

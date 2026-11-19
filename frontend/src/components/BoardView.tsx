@@ -60,7 +60,7 @@ function locate(columns: ColumnDetail[], dndId: UniqueIdentifier): Location | nu
   return null
 }
 
-export function BoardView({ boardId }: { boardId: number }) {
+export function BoardView({ boardId, initialCardId = null }: { boardId: number; initialCardId?: number | null }) {
   const {
     board,
     setColumns,
@@ -75,9 +75,9 @@ export function BoardView({ boardId }: { boardId: number }) {
     persistCardMove,
   } = useBoard(boardId)
   const columns = board?.columns ?? []
-  const { times, start, stop } = useCardTimes(allCardIds(columns))
+  const { times, start, stop, logTime } = useCardTimes(allCardIds(columns))
 
-  const [openCardId, setOpenCardId] = useState<number | null>(null)
+  const [openCardId, setOpenCardId] = useState<number | null>(initialCardId)
   const [columnDialog, setColumnDialog] = useState<ColumnDialog>(null)
   const [activeCardId, setActiveCardId] = useState<number | null>(null)
   const dragOrigin = useRef<DragOrigin | null>(null)
@@ -203,6 +203,7 @@ export function BoardView({ boardId }: { boardId: number }) {
           onDelete={() => removeCard(openCard.id)}
           onStartTimer={() => start(openCard.id)}
           onStopTimer={() => stop(openCard.id)}
+          onLogTime={(input) => logTime(openCard.id, input)}
           onClose={() => setOpenCardId(null)}
         />
       )}

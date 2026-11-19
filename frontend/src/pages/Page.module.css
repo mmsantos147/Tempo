@@ -1,0 +1,13 @@
+.main {
+  flex: 1;
+  min-height: 0;
+}
+
+.scroll {
+  overflow-y: auto;
+}
+
+.message {
+  padding: 16px;
+  color: var(--text-muted);
+}

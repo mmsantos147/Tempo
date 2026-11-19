@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { timeEntriesApi } from '../api/timeEntries'
-import type { CardTime } from '../types'
+import type { CardTime, TimeEntryInput } from '../types'
 import { useNotify } from './useNotify'
 
 export function useCardTimes(cardIds: number[]) {
@@ -66,5 +66,13 @@ export function useCardTimes(cardIds: number[]) {
     [notifyError, refresh, times],
   )
 
-  return { times, start, stop }
+  const logTime = useCallback(
+    async (cardId: number, input: TimeEntryInput) => {
+      await timeEntriesApi.create(cardId, input)
+      await refresh(cardId)
+    },
+    [refresh],
+  )
+
+  return { times, start, stop, logTime }
 }

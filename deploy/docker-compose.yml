@@ -1,0 +1,92 @@
+name: tempo-prod
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: "3"
+
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB in .env}
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *logging
+
+  backend:
+    build: ../backend
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      TEMPO_USER_EMAIL: ${TEMPO_USER_EMAIL:?set TEMPO_USER_EMAIL in .env}
+      TEMPO_USER_NAME: ${TEMPO_USER_NAME:?set TEMPO_USER_NAME in .env}
+      TEMPO_USER_PASSWORD_HASH: ${TEMPO_USER_PASSWORD_HASH:?set TEMPO_USER_PASSWORD_HASH in .env}
+      JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=75
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - internal
+      - web
+    logging: *logging
+
+  nginx:
+    build:
+      context: ..
+      dockerfile: deploy/nginx/Dockerfile
+    restart: unless-stopped
+    environment:
+      TEMPO_DOMAIN: ${TEMPO_DOMAIN:?set TEMPO_DOMAIN in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - letsencrypt:/etc/letsencrypt:ro
+      - certbot-www:/var/www/certbot:ro
+    depends_on:
+      - backend
+    networks:
+      - web
+    logging: *logging
+
+  certbot:
+    image: certbot/certbot:v5.8.0
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "/opt/tempo/run.sh"]
+    environment:
+      TEMPO_DOMAIN: ${TEMPO_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env}
+      CERTBOT_STAGING: ${CERTBOT_STAGING:-0}
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+      - ./certbot/run.sh:/opt/tempo/run.sh:ro
+    depends_on:
+      - nginx
+    networks:
+      - web
+    logging: *logging
+
+networks:
+  internal:
+    internal: true
+  web: {}
+
+volumes:
+  pgdata:
+  letsencrypt:
+  certbot-www:

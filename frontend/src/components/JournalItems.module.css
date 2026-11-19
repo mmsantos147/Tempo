@@ -1,0 +1,133 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.empty {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 6px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.dragging {
+  opacity: 0.4;
+}
+
+.handle {
+  display: inline-flex;
+  padding: 4px 2px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: grab;
+  touch-action: none;
+}
+
+.handle:focus-visible {
+  outline: 2px solid var(--accent);
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 4px;
+  border-radius: 4px;
+  cursor: text;
+  overflow-wrap: anywhere;
+}
+
+.text:hover {
+  background: var(--surface-muted);
+}
+
+.textDone {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.editInput {
+  flex: 1;
+  min-width: 0;
+  padding: 3px 4px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.makeCard {
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.badge:hover {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.badgeDone {
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.badgeDone:hover {
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+}
+
+.addForm {
+  display: flex;
+  gap: 6px;
+}
+
+.addInput {
+  flex: 1;
+  min-width: 0;
+}

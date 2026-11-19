@@ -8,29 +8,18 @@ import br.com.tempo.card.dto.MoveCardRequest;
 import br.com.tempo.column.BoardColumnService;
 import br.com.tempo.column.dto.BoardColumnRequest;
 import br.com.tempo.error.BusinessRuleException;
+import br.com.tempo.error.ResourceNotFoundException;
+import br.com.tempo.support.ServiceTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
-@Testcontainers
-@Transactional
-class CardServiceTest {
-
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17");
+class CardServiceTest extends ServiceTest {
 
     @Autowired
     BoardService boardService;
@@ -45,6 +34,7 @@ class CardServiceTest {
 
     @BeforeEach
     void setUpBoard() {
+        signInAsNewUser();
         boardId = boardService.create(new BoardRequest("Test")).id();
         columnA = columnService.create(boardId, new BoardColumnRequest("A")).id();
         columnB = columnService.create(boardId, new BoardColumnRequest("B")).id();
@@ -104,6 +94,15 @@ class CardServiceTest {
 
         assertThatThrownBy(() -> cardService.move(idOf("a0"), new MoveCardRequest(foreignColumn, 0)))
                 .isInstanceOf(BusinessRuleException.class);
+    }
+
+    @Test
+    void cannotSeeCardsOfAnotherUser() {
+        Long cardId = idOf("a0");
+        signInAsNewUser();
+
+        assertThatThrownBy(() -> cardService.get(cardId)).isInstanceOf(ResourceNotFoundException.class);
+        assertThatThrownBy(() -> boardService.get(boardId)).isInstanceOf(ResourceNotFoundException.class);
     }
 
     private BoardDetailResponse board() {

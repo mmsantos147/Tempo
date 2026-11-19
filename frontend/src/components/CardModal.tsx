@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import type { Card, CardInput, CardTime } from '../types'
+import type { Card, CardInput, CardTime, TimeEntryInput } from '../types'
 import { Button } from './Button'
 import { CardTimer } from './CardTimer'
 import { ConfirmDialog } from './ConfirmDialog'
 import form from './Form.module.css'
 import { Icon } from './Icon'
 import { Modal, ModalActions } from './Modal'
+import { TimeEntryForm } from './TimeEntryForm'
 import styles from './CardModal.module.css'
 
 interface CardModalProps {
@@ -16,6 +17,7 @@ interface CardModalProps {
   onDelete: () => Promise<void>
   onStartTimer: () => Promise<void>
   onStopTimer: () => Promise<void>
+  onLogTime: (input: TimeEntryInput) => Promise<void>
   onClose: () => void
 }
 
@@ -27,6 +29,7 @@ export function CardModal({
   onDelete,
   onStartTimer,
   onStopTimer,
+  onLogTime,
   onClose,
 }: CardModalProps) {
   const [title, setTitle] = useState(card.title)
@@ -34,6 +37,7 @@ export function CardModal({
   const [estimate, setEstimate] = useState(card.estimatedMinutes?.toString() ?? '')
   const [saving, setSaving] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [loggingTime, setLoggingTime] = useState(false)
 
   const completed = card.completedAt !== null
   const trimmedTitle = title.trim()
@@ -62,7 +66,13 @@ export function CardModal({
       >
         <div className={styles.timeBox}>
           <span className={styles.timeLabel}>Time tracked</span>
-          <CardTimer time={time} onStart={onStartTimer} onStop={onStopTimer} large />
+          <div className={styles.timeActions}>
+            <Button variant="ghost" onClick={() => setLoggingTime(true)}>
+              <Icon name="plus" size={14} />
+              Log time
+            </Button>
+            <CardTimer time={time} onStart={onStartTimer} onStop={onStopTimer} large />
+          </div>
         </div>
 
         <label className={form.field}>
@@ -122,6 +132,14 @@ export function CardModal({
             onClose()
           }}
           onClose={() => setConfirmingDelete(false)}
+        />
+      )}
+
+      {loggingTime && (
+        <TimeEntryForm
+          card={{ id: card.id, title: card.title }}
+          onSubmit={(_cardId, input) => onLogTime(input)}
+          onClose={() => setLoggingTime(false)}
         />
       )}
     </Modal>

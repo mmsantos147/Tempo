@@ -20,7 +20,18 @@ spring:
         jdbc:
           time_zone: UTC
 
+server:
+  forward-headers-strategy: native
+  servlet:
+    session:
+      timeout: 12h
+      cookie:
+        http-only: true
+        secure: true
+        same-site: strict
+
 tempo:
-  default-user-id: 1
-  cors:
-    allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
+  initial-user:
+    email: ${TEMPO_USER_EMAIL:}
+    name: ${TEMPO_USER_NAME:}
+    password-hash: ${TEMPO_USER_PASSWORD_HASH:}

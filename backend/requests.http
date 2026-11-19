@@ -1,4 +1,22 @@
 @api = http://localhost:8080
+@xsrf = paste-the-XSRF-TOKEN-cookie-value
+
+###
+GET {{api}}/auth/csrf
+
+###
+POST {{api}}/auth/login
+X-XSRF-TOKEN: {{xsrf}}
+Content-Type: application/json
+
+{ "email": "you@example.com", "password": "your-password" }
+
+###
+GET {{api}}/auth/me
+
+###
+POST {{api}}/auth/logout
+X-XSRF-TOKEN: {{xsrf}}
 
 ###
 GET {{api}}/boards
@@ -8,42 +26,50 @@ GET {{api}}/boards/1
 
 ###
 POST {{api}}/boards
+X-XSRF-TOKEN: {{xsrf}}
 Content-Type: application/json
 
 { "name": "Project X" }
 
 ###
 PUT {{api}}/boards/1
+X-XSRF-TOKEN: {{xsrf}}
 Content-Type: application/json
 
 { "name": "My renamed board" }
 
 ###
 DELETE {{api}}/boards/2
+X-XSRF-TOKEN: {{xsrf}}
 
 ###
 POST {{api}}/boards/1/columns
+X-XSRF-TOKEN: {{xsrf}}
 Content-Type: application/json
 
 { "name": "Review" }
 
 ###
 PUT {{api}}/columns/1
+X-XSRF-TOKEN: {{xsrf}}
 Content-Type: application/json
 
 { "name": "Backlog" }
 
 ###
 POST {{api}}/columns/3/move
+X-XSRF-TOKEN: {{xsrf}}
 Content-Type: application/json
 
 { "position": 0 }
 
 ###
 DELETE {{api}}/columns/4
+X-XSRF-TOKEN: {{xsrf}}
 
 ###
 POST {{api}}/columns/1/cards
+X-XSRF-TOKEN: {{xsrf}}
 Content-Type: application/json
 
 { "title": "Set up CI", "description": "GitHub Actions running the tests", "estimatedMinutes": 90 }
@@ -53,36 +79,106 @@ GET {{api}}/cards/1
 
 ###
 PUT {{api}}/cards/1
+X-XSRF-TOKEN: {{xsrf}}
 Content-Type: application/json
 
 { "title": "Set up CI", "description": null, "estimatedMinutes": 60 }
 
 ###
 POST {{api}}/cards/1/move
+X-XSRF-TOKEN: {{xsrf}}
 Content-Type: application/json
 
 { "columnId": 2, "position": 0 }
 
 ###
 POST {{api}}/cards/1/complete
+X-XSRF-TOKEN: {{xsrf}}
 
 ###
 POST {{api}}/cards/1/reopen
+X-XSRF-TOKEN: {{xsrf}}
 
 ###
 DELETE {{api}}/cards/1
+X-XSRF-TOKEN: {{xsrf}}
 
 ###
 POST {{api}}/cards/1/time-entries/start
+X-XSRF-TOKEN: {{xsrf}}
 Content-Type: application/json
 
 { "description": "Writing the workflow" }
 
 ###
 POST {{api}}/cards/1/time-entries/start
+X-XSRF-TOKEN: {{xsrf}}
 
 ###
 POST {{api}}/time-entries/1/stop
+X-XSRF-TOKEN: {{xsrf}}
 
 ###
 GET {{api}}/cards/1/time
+
+###
+POST {{api}}/cards/1/time-entries
+X-XSRF-TOKEN: {{xsrf}}
+Content-Type: application/json
+
+{ "date": "2026-10-15", "startTime": "09:00", "endTime": "10:30", "timeZone": "America/Sao_Paulo", "description": "Code review" }
+
+###
+PUT {{api}}/time-entries/1
+X-XSRF-TOKEN: {{xsrf}}
+Content-Type: application/json
+
+{ "date": "2026-10-15", "startTime": "09:15", "endTime": "10:30", "timeZone": "America/Sao_Paulo", "description": null }
+
+###
+GET {{api}}/time-entries?date=2026-10-15&timeZone=America/Sao_Paulo
+
+###
+GET {{api}}/journal?from=2026-10-01&to=2026-10-31
+
+###
+GET {{api}}/journal/2026-10-15
+
+###
+PUT {{api}}/journal/2026-10-15
+X-XSRF-TOKEN: {{xsrf}}
+Content-Type: application/json
+
+{ "whatIDid": "Finished the manual time entries", "howIFelt": "Focused" }
+
+###
+POST {{api}}/journal/2026-10-15/items
+X-XSRF-TOKEN: {{xsrf}}
+Content-Type: application/json
+
+{ "text": "Write tests for the overlap rule" }
+
+###
+PUT {{api}}/journal-items/1
+X-XSRF-TOKEN: {{xsrf}}
+Content-Type: application/json
+
+{ "text": "Write tests for the overlap and time zone rules" }
+
+###
+POST {{api}}/journal-items/1/move
+X-XSRF-TOKEN: {{xsrf}}
+Content-Type: application/json
+
+{ "position": 0 }
+
+###
+POST {{api}}/journal-items/1/create-card
+X-XSRF-TOKEN: {{xsrf}}
+Content-Type: application/json
+
+{ "columnId": 1 }
+
+###
+DELETE {{api}}/journal-items/1
+X-XSRF-TOKEN: {{xsrf}}

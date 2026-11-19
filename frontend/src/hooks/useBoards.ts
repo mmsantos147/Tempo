@@ -23,10 +23,10 @@ function saveSelectedId(id: number | null): void {
   }
 }
 
-export function useBoards() {
+export function useBoards(initialId: number | null = null) {
   const { notifyError } = useNotify()
   const [boards, setBoards] = useState<BoardSummary[]>([])
-  const [selectedId, setSelectedId] = useState<number | null>(readSelectedId)
+  const [selectedId, setSelectedId] = useState<number | null>(() => initialId ?? readSelectedId())
   const [loading, setLoading] = useState(true)
 
   const select = useCallback((id: number | null) => {
