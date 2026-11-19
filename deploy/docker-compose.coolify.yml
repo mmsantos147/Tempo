@@ -5,42 +5,20 @@ x-logging: &logging
     max-file: "3"
 
 services:
-  db:
-    image: postgres:17
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    networks:
-      - internal
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    mem_limit: 512m
-    logging: *logging
-
   backend:
     build: ../backend
     restart: unless-stopped
     environment:
-      DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
-      DB_USER: ${POSTGRES_USER}
-      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_URL: jdbc:postgresql://${DB_HOST:?set DB_HOST}:5432/${POSTGRES_DB:?set POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER:?set POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
       TEMPO_USER_EMAIL: ${TEMPO_USER_EMAIL:?set TEMPO_USER_EMAIL}
       TEMPO_USER_NAME: ${TEMPO_USER_NAME:?set TEMPO_USER_NAME}
       TEMPO_USER_PASSWORD_HASH: ${TEMPO_USER_PASSWORD_HASH:?set TEMPO_USER_PASSWORD_HASH}
       JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=75
-    depends_on:
-      db:
-        condition: service_healthy
     networks:
-      - internal
       - web
+      - coolify
     healthcheck:
       test: ["CMD-SHELL", "wget -qO /dev/null http://127.0.0.1:8080/auth/csrf || exit 1"]
       interval: 30s
@@ -71,9 +49,6 @@ services:
     logging: *logging
 
 networks:
-  internal:
-    internal: true
   web: {}
-
-volumes:
-  pgdata:
+  coolify:
+    external: true

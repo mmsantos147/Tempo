@@ -136,9 +136,17 @@ BCrypt only looks at the first 72 bytes of a password, so the login rejects long
 
 | Service   | Role                                                                        | Networks          | Published ports |
 |-----------|-----------------------------------------------------------------------------|-------------------|-----------------|
-| `db`      | PostgreSQL 17                                                               | `internal`        | none            |
-| `backend` | Spring Boot API                                                             | `internal`, `web` | none            |
+| `backend` | Spring Boot API                                                             | `web`, `coolify`  | none            |
 | `nginx`   | Serves the frontend over HTTP, proxies `/api/*` to the backend, adds the security headers | `web`             | none (Traefik routes to port 80) |
+
+The database is not part of this stack: Tempo uses a shared PostgreSQL resource managed by Coolify (one database and one role per project), reached through Coolify's `coolify` network. Create its database and role once, as the PostgreSQL superuser:
+
+```sql
+CREATE ROLE tempo LOGIN;
+CREATE DATABASE tempo OWNER tempo;
+REVOKE ALL ON DATABASE tempo FROM PUBLIC;
+\password tempo
+```
 
 Traefik terminates HTTPS and forwards to nginx. nginx trusts `X-Forwarded-For` only from private Docker addresses, so the backend still sees the visitor's IP (the login rate limit depends on it), and it always tells the backend the request was HTTPS so the `Secure` cookies keep working.
 
@@ -146,8 +154,8 @@ Traefik terminates HTTPS and forwards to nginx. nginx trusts `X-Forwarded-For` o
 
 1. In Coolify, open the project, add a **New Resource** from the GitHub repository (branch `main`) with the **Docker Compose** build pack, **Base Directory** `/deploy` and **Docker Compose Location** `/docker-compose.coolify.yml`. The base directory matters: the build paths in the compose file (`../backend`, `..`) are relative to `deploy/`.
 2. Under **Domains**, set `https://<your-domain>` on the `nginx` service (port 80). Coolify's proxy obtains the certificate.
-3. Under **Environment Variables**, set `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` (`openssl rand -base64 32`) and the three `TEMPO_USER_*` values. The `TEMPO_DOMAIN`, `ACME_EMAIL` and `CERTBOT_STAGING` variables are not used here.
-4. Deploy, then set up a **Scheduled Backup** for the `db` service.
+3. Under **Environment Variables**, set `DB_HOST` (the shared PostgreSQL's internal hostname, shown in its Coolify page), `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` (the role created above) and the three `TEMPO_USER_*` values. The `TEMPO_DOMAIN`, `ACME_EMAIL` and `CERTBOT_STAGING` variables are not used here.
+4. Deploy. Backups are configured once, on the shared PostgreSQL resource.
 
 Pushing to `main` (or **Redeploy** in Coolify) updates it. Sessions are kept in the backend's memory, so a redeploy signs you out.
 
@@ -192,7 +200,7 @@ Sessions are kept in the backend's memory, so a redeploy signs you out.
 
 ### Backups
 
-The data lives in the `pgdata` volume. With Coolify, use its scheduled database backups. A manual dump with the plain compose setup:
+With Coolify, the data lives in the shared PostgreSQL resource; use its scheduled backups. With the plain compose setup it lives in the `pgdata` volume. A manual dump with the plain compose setup:
 
 ```bash
 docker compose exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' | gzip > tempo-$(date +%F).sql.gz
