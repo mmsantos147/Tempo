@@ -22,7 +22,8 @@ Documentação para o usuário: seção **Deployment** do `README.md` e "Fase 2:
 | `nginx` | `deploy/nginx/Dockerfile.coolify` + `tempo-coolify.conf`: só HTTP na 80, `expose` (sem `ports`), healthcheck `/nginx-health` | `web` | 128m |
 
 - **Banco = Postgres compartilhado** `postgres-shared` (PostgreSQL 18) no projeto "Infraestructure" do Coolify, usado por todos os projetos. Banco `tempo` com dono `tempo` (role sem superusuário, `REVOKE ALL ... FROM PUBLIC`). O backend alcança pela rede externa `coolify` usando `DB_HOST` = hostname interno do recurso (uuid). **Não** recrie um serviço `db` neste compose. Mudança de schema continua por Flyway; nunca use o superusuário no app.
-- Variáveis no Coolify: `DB_HOST`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` (do role `tempo`), `TEMPO_USER_*`.
+- Variáveis no Coolify: `DB_HOST`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` (do role `tempo`), `TEMPO_USER_*`. `TEMPO_USER_PASSWORD_HASH` e `POSTGRES_PASSWORD` estão como **Literal** no Coolify (o hash BCrypt tem `$`, e a senha também pode ter); sem isso o valor chega truncado e o backend falha (hash inválido ou `password authentication failed`).
+- Primeiro deploy feito em 2026-11-19 (recurso `tempo:main`).
 
 - Traefik faz o TLS e roteia para `nginx:80` (domínio configurado no serviço `nginx` no Coolify).
 - **IP real:** `real_ip_header X-Forwarded-For` + `real_ip_recursive on` + `set_real_ip_from` só nas faixas privadas. Nunca troque para confiar em qualquer origem (permitiria falsificar o IP e burlar o `LoginAttemptService`), nem remova (todos os visitantes teriam o IP do Traefik e se bloqueariam juntos).
