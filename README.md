@@ -48,7 +48,7 @@ Tempo is a personal kanban board with built-in time tracking. Organize cards in 
 │       ├── hooks/        application state and actions
 │       ├── components/   UI components with their CSS modules
 │       └── utils/        pure helpers
-├── deploy/               production: docker-compose, nginx image, certbot
+├── deploy/               production: Coolify and standalone compose files, nginx image, certbot
 └── docker-compose.yml    local PostgreSQL
 ```
 
@@ -127,7 +127,31 @@ BCrypt only looks at the first 72 bytes of a password, so the login rejects long
 
 ## Deployment
 
-`deploy/` runs Tempo on a single server with Docker Compose:
+`deploy/` has two ways to run Tempo in production:
+
+- `docker-compose.coolify.yml`: behind [Coolify](https://coolify.io), whose reverse proxy (Traefik) owns ports 80/443 and the certificates. This is how the production server runs.
+- `docker-compose.yml`: a server without any other reverse proxy, where nginx and certbot handle HTTPS themselves.
+
+### With Coolify
+
+| Service   | Role                                                                        | Networks          | Published ports |
+|-----------|-----------------------------------------------------------------------------|-------------------|-----------------|
+| `db`      | PostgreSQL 17                                                               | `internal`        | none            |
+| `backend` | Spring Boot API                                                             | `internal`, `web` | none            |
+| `nginx`   | Serves the frontend over HTTP, proxies `/api/*` to the backend, adds the security headers | `web`             | none (Traefik routes to port 80) |
+
+Traefik terminates HTTPS and forwards to nginx. nginx trusts `X-Forwarded-For` only from private Docker addresses, so the backend still sees the visitor's IP (the login rate limit depends on it), and it always tells the backend the request was HTTPS so the `Secure` cookies keep working.
+
+**First deploy**
+
+1. In Coolify, open the project, add a **New Resource** from the GitHub repository (branch `main`) with the **Docker Compose** build pack, **Base Directory** `/deploy` and **Docker Compose Location** `/docker-compose.coolify.yml`. The base directory matters: the build paths in the compose file (`../backend`, `..`) are relative to `deploy/`.
+2. Under **Domains**, set `https://<your-domain>` on the `nginx` service (port 80). Coolify's proxy obtains the certificate.
+3. Under **Environment Variables**, set `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` (`openssl rand -base64 32`) and the three `TEMPO_USER_*` values. The `TEMPO_DOMAIN`, `ACME_EMAIL` and `CERTBOT_STAGING` variables are not used here.
+4. Deploy, then set up a **Scheduled Backup** for the `db` service.
+
+Pushing to `main` (or **Redeploy** in Coolify) updates it. Sessions are kept in the backend's memory, so a redeploy signs you out.
+
+### Without a reverse proxy
 
 | Service   | Role                                                                                 | Networks          | Published ports |
 |-----------|--------------------------------------------------------------------------------------|-------------------|-----------------|
@@ -166,9 +190,9 @@ docker compose up -d --build
 
 Sessions are kept in the backend's memory, so a redeploy signs you out.
 
-**Backups**
+### Backups
 
-The data lives in the `pgdata` volume. A simple dump:
+The data lives in the `pgdata` volume. With Coolify, use its scheduled database backups. A manual dump with the plain compose setup:
 
 ```bash
 docker compose exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' | gzip > tempo-$(date +%F).sql.gz

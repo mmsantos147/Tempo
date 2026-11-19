@@ -65,6 +65,13 @@ Kanban pessoal com apontamento de horas. Back-end Spring Boot 3.5 / Java 21 / Po
 - `save`/`addItem` fazem upsert com `INSERT ... ON CONFLICT (user_id, entry_date) DO NOTHING` + select (seguro com autosaves simultâneos; `created` vem do número de linhas inseridas). Texto em branco vira `null`. `updated_at` pelo `@PreUpdate`.
 - `get` busca itens com `left join fetch` de card e coluna (sem N+1). `createCard` trava o item (`PESSIMISTIC_WRITE`) para o 409 valer com requisições simultâneas e reaproveita `CardService.create`; `uk_journal_item_card` garante um item por card. Editar o texto do item não muda o card; apagar o item mantém o card; apagar o card desvincula o item (`ON DELETE SET NULL`).
 
+### Fase 4: deploy no Coolify (arquivos prontos e validados na VPS em 2026-11-19, ainda não implantado)
+- A VPS de produção roda Coolify com Traefik, que ocupa 80/443 e emite os certificados; o `deploy/docker-compose.yml` (nginx + certbot publicando 80/443) não sobe lá. Ele continua como opção para servidor sem proxy.
+- `deploy/docker-compose.coolify.yml` (build pack Docker Compose do Coolify com Base Directory `/deploy`, domínio no serviço `nginx`, porta 80): `db`, `backend`, `nginx`, sem `ports`, sem certbot; redes `internal` e `web` mantidas; `mem_limit` (db 512m, backend 1g, nginx 128m) porque a VPS tem 7,8 GiB sem swap e é compartilhada.
+- `deploy/nginx/Dockerfile.coolify` + `tempo-coolify.conf` (sem envsubst): só HTTP na 80, mesmos headers e CSP. Como o nginx deixou de ser a borda, usa `real_ip` confiando só em faixas privadas (`10/8`, `172.16/12`, `192.168/16`) com `real_ip_recursive`, e manda `X-Forwarded-Proto https` fixo (senão o Tomcat trata a requisição como HTTP e os cookies `Secure` quebram). O `LoginAttemptService` depende desse IP real.
+- Healthchecks sem dependência nova: backend via `GET /auth/csrf` (público, 204), nginx via `/nginx-health`.
+- Verificar após o primeiro deploy: se o Coolify manteve o `db` só na rede `internal` (ele acrescenta a rede própria do recurso aos serviços) e se o bloqueio de login por IP isola visitantes diferentes.
+
 ## Pendências
 
-Nenhuma. As Fases 1–3 estão implementadas e cobertas por testes (`./mvnw test`, 42 testes).
+As Fases 1–3 estão implementadas e cobertas por testes (`./mvnw test`, 42 testes). Falta implantar a Fase 4 no Coolify (passo a passo no `README.md`).
